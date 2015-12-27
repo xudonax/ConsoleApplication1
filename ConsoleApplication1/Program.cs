@@ -9,7 +9,7 @@ namespace ConsoleApplication1
             ulong seed = 0xfa40e19fb9cbd97e;
 
             //var lfsr = new LinearFeedbackShiftRegister(seed);
-            var lfsr = new LinearFeedbackShiftRegister(9223372036854775808);
+            var lfsr = new LinearFeedbackShiftRegister();
             ulong value = 0uL;
 
             foreach (var val in lfsr)
