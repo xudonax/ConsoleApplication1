@@ -43,16 +43,11 @@ namespace ConsoleApplication1
         {
             do
             {
-                if (shiftRegister == 0uL)
-                {
-                    throw new InvalidOperationException("Inner state is unrecoverable. Please reïnstantiate the class to continue usage.");
-                }
-
                 // Get the bits at position 60, 61, 63 and 64:
-                var bit60 = (shiftRegister & (1uL << 60 - 1)) != 0;
-                var bit61 = (shiftRegister & (1uL << 61 - 1)) != 0;
-                var bit63 = (shiftRegister & (1uL << 63 - 1)) != 0;
-                var bit64 = (shiftRegister & (1uL << 64 - 1)) != 0;
+                var bit60 = (shiftRegister & (1uL << 4 - 1)) != 0;
+                var bit61 = (shiftRegister & (1uL << 3 - 1)) != 0;
+                var bit63 = (shiftRegister & (1uL << 1 - 1)) != 0;
+                var bit64 = (shiftRegister & (1uL << 0 - 1)) != 0;
 
                 // XOR 64 with 63, that with 61 and that with 60
                 var immediate1 = bit64 ^ bit63;
@@ -68,7 +63,7 @@ namespace ConsoleApplication1
                 
                 yield return shiftRegister;
             }
-            while (shiftRegister != seed && shiftRegister != 0uL);
+            while (shiftRegister != seed);
 
             yield break;
         }
