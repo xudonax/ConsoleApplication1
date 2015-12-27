@@ -18,7 +18,7 @@ namespace ConsoleApplication1
                 Console.WriteLine(value);
             }
 
-            Console.WriteLine($"For seed {seed} the period is {lfsr.Period}.");
+            Console.WriteLine($"For seed {lfsr.Seed} the period is {lfsr.Period}.");
             Console.ReadKey();
         }
     }

@@ -12,27 +12,42 @@ namespace ConsoleApplication1
         
         public LinearFeedbackShiftRegister()
         {
-            using (var rng = new RNGCryptoServiceProvider())
+            do
             {
-                var randomBytes = new byte[8];
-                rng.GetBytes(randomBytes);
+                using (var rng = new RNGCryptoServiceProvider())
+                {
+                    var randomBytes = new byte[8];
+                    rng.GetBytes(randomBytes);
 
-                seed = BitConverter.ToUInt64(randomBytes, 0);
+                    seed = BitConverter.ToUInt64(randomBytes, 0);
+                }
             }
+            while (seed == 0uL);
+
             shiftRegister = seed;
         }
 
         public LinearFeedbackShiftRegister(ulong seed)
         {
             this.seed = seed;
+            
+            if(this.seed == 0uL)
+            {
+                throw new ArgumentException($"Seed cannot be `{seed}`. When in doubt, please use the parameterless constructor.", nameof(seed));
+            }
+
             shiftRegister = seed;
         }
 
         public IEnumerator<ulong> GetEnumerator()
         {
-            // This is safe because we are in a Enumerator here
             do
             {
+                if (shiftRegister == 0uL)
+                {
+                    throw new InvalidOperationException("Inner state is unrecoverable. Please reïnstantiate the class to continue usage.");
+                }
+
                 // Get the bits at position 60, 61, 63 and 64:
                 var bit60 = (shiftRegister & (1uL << 60 - 1)) != 0;
                 var bit61 = (shiftRegister & (1uL << 61 - 1)) != 0;
@@ -42,17 +57,20 @@ namespace ConsoleApplication1
                 // XOR 64 with 63, that with 61 and that with 60
                 var immediate1 = bit64 ^ bit63;
                 var immediate2 = immediate1 ^ bit61;
-                var shiftMeIn = immediate2 ^ bit60 ? 1uL : 0uL;
+                var immediate3 = immediate2 ^ bit60;
+                var shiftMeIn = (immediate3 ^ bit60 ? 1uL : 0uL) & 1;
 
                 // Shift the bit into shiftRegister
                 shiftRegister = (shiftRegister >> 1) | (shiftMeIn << 63);
 
                 // Let's see what the period is
                 Period++;
-
+                
                 yield return shiftRegister;
             }
-            while (shiftRegister != seed);
+            while (shiftRegister != seed && shiftRegister != 0uL);
+
+            yield break;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -61,5 +79,7 @@ namespace ConsoleApplication1
         }
 
         public ulong Period { get; set; }
+
+        public ulong Seed { get { return seed; } }
     }
 }
